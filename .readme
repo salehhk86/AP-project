@@ -1,0 +1,51 @@
+# AP Spring Mini Project
+
+A C++ object-oriented university project for Ferdowsi University, inspired by online restaurant service platforms such as SnappFood.
+
+## Overview
+This project is developed as part of the **AP-SPRING** course at **Ferdowsi University** under the supervision of **Professor Javad Sobouti**.
+
+The main idea of the project is to design and implement a **restaurant service system** similar to **SnappFood** using **C++** and **Object-Oriented Programming (OOP)** principles.
+
+## Project Goals
+The goals of this project are:
+- practicing Object-Oriented Programming in C++
+- designing a clean and understandable software architecture
+- applying concepts such as:
+  - Encapsulation
+  - Inheritance
+  - Polymorphism
+  - Abstraction
+  - Modularity
+- learning version control with Git and GitHub
+- preparing the project for database integration
+
+## Technologies and Tools
+- **Language:** C++
+- **Paradigm:** Object-Oriented Programming (OOP)
+- **Editor:** Visual Studio Code
+- **Compiler:** GCC / g++
+- **Version Control:** Git
+- **Repository Platform:** GitHub
+- **Database:** Included in the project
+
+## Project Concept
+This project simulates an online food and restaurant service platform.  
+It is designed to manage users, restaurants, menus, and ordering operations in an object-oriented way.
+
+Planned or possible parts of the system include:
+- user accounts
+- customer, manager, and admin roles
+- menu and food management
+- order processing
+- database support
+- service and business logic handling
+
+## Development Process
+The project is being developed incrementally and managed through **Git** and **GitHub**.  
+Every major step of the implementation is saved using commits and push operations.
+
+## Build & Run
+To compile the project using g++, run:
+```bash
+g++ -std=c++17 -Iinclude src/*.cpp -o app
