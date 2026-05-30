@@ -3,8 +3,6 @@
 
 #include "User.hpp"
 
-class User;
-
 class Customer : public User
 {
 

@@ -2,9 +2,6 @@
 #define ADMIN_HPP
 
 #include "User.hpp"
-
-class User;
-
 class Admin : public User
 {
 
