@@ -50,12 +50,7 @@ void Order::AddLine(long id, int quant, double price)
         }
     }
 
-    Order::OrderLine newline;
-    newline.itemId = id;
-    newline.quantity = quant;
-    newline.unitPrice = price;
-
-    lines.push_back(newline);
+    lines.push_back({id, quant, price});
 }
 
 bool Order::RemoveLine(long id)
