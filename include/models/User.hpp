@@ -4,43 +4,51 @@
 #include <string>
 #include <iostream>
 
-using namespace std;
+enum class Role
+{
+    Customer,
+    Admin,
+    RestaurantManager
+};
 
 class User
 {
 private:
-    string UserName;
-    string password;
-    string Phone_Number;
-    string Address;
-    string role; // customer , manager , admin
+    long id;
+    std::string UserName;
+    std::string password;
+    std::string Phone_Number;
+    std::string Address;
+    Role role; // customer , manager , admin
     bool Is_Active;
-    string Created_At;
+    std::string Created_At;
 
 public:
     // constructor
     User(); // default cons
-    User(string, string, string, string, string, string);
+    User(long, std::string, std::string, std::string, std::string, Role, std::string);
 
     // distructor
     virtual ~User();
 
     // Setter
-    void SetUserName(string);
-    void SetPassword(string);
-    void SetPhone_Number(string);
-    void SetAddress(string);
-    void SetRole(string);
+    void SetId(long);
+    void SetUserName(std::string);
+    void SetPassword(std::string);
+    void SetPhone_Number(std::string);
+    void SetAddress(std::string);
+    void SetRole(Role);
     void SetIs_Active(bool);
-    void SetCreated_At(string);
+    void SetCreated_At(std::string);
 
     // Getter
-    string GetUserName() const;
-    string GetPhone_Number() const;
-    string GetAddress() const;
-    string GetRole() const;
+    long GetId() const;
+    std::string GetUserName() const;
+    std::string GetPhone_Number() const;
+    std::string GetAddress() const;
+    Role GetRole() const;
     bool GetIs_Active() const;
-    string GetCreated_At() const;
+    std::string GetCreated_At() const;
 
     virtual void Print_Details() const;
 };
