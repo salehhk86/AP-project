@@ -1,6 +1,7 @@
 #include "Cart.hpp"
 #include <iostream>
 #include <iomanip>
+#include <stdexcept>
 
 using namespace std;
 
@@ -26,7 +27,7 @@ double Cart::GetTotalPrice() const
     return total;
 }
 
-bool Cart::IsEmpty() const { return (items.begin() == items.end()); }
+bool Cart::IsEmpty() const { return items.empty(); }
 
 void Cart::AddItem(long id, int quant, double price)
 {
@@ -60,7 +61,7 @@ bool Cart::RemoveItem(long id)
 void Cart::ChangeItemQuantity(long id, int quant)
 {
     if (quant < 0)
-        return;
+        throw std::invalid_argument("Quantity cannot be negative.");
 
     for (auto it = items.begin(); it != items.end(); it++)
     {

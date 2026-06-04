@@ -19,7 +19,7 @@ private:
 public:
     // constructor
     Drink();
-    Drink(long, std::string, std::string, double, double, DrinkSize);
+    Drink(long, const std::string &, const std::string &, double, double, DrinkSize);
 
     // Setter
     void SetDrinkSize(DrinkSize);

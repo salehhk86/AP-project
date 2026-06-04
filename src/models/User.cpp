@@ -1,39 +1,40 @@
 #include "User.hpp"
+#include <iostream>
+
 using namespace std;
 
 // constructor
 User::User()
-    : id(-1), UserName(""), password(""), Phone_Number(""), Address(""),
-      role(Role::Customer), Is_Active(false), Created_At("") {} // default cons
+    : id(-1), userName(""), password(""), phoneNumber(""), address(""),
+      role(Role::Customer), isActive(false), createdAt("") {} // default cons
 
-User::User(long i, string u, string p, string ph, string a, Role r, string c)
-    : id(i), UserName(u), password(p), Phone_Number(ph), Address(a), role(r), Is_Active(true), Created_At(c) {}
-
-// distructor
-User::~User() = default;
+User::User(long i, const string &u, const string &p, const string &ph, const string &a, Role r, const string &c)
+    : id(i), userName(u), password(p), phoneNumber(ph), address(a), role(r), isActive(true), createdAt(c) {}
 
 // Setter
 void User::SetId(long i) { id = i; }
-void User::SetUserName(string u) { UserName = u; }
-void User::SetPassword(string p) { password = p; }
-void User::SetPhone_Number(string p) { Phone_Number = p; }
-void User::SetAddress(string a) { Address = a; }
+void User::SetUserName(const string &u) { userName = u; }
+void User::SetPassword(const string &p) { password = p; }
+void User::SetPhone_Number(const string &p) { phoneNumber = p; }
+void User::SetAddress(const string &a) { address = a; }
 void User::SetRole(Role r) { role = r; }
-void User::SetIs_Active(bool a) { Is_Active = a; }
-void User::SetCreated_At(string c) { Created_At = c; }
+void User::SetIs_Active(bool a) { isActive = a; }
+void User::SetCreated_At(const string &c) { createdAt = c; }
 
 // getter
 long User::GetId() const { return id; }
-string User::GetUserName() const { return UserName; }
-string User::GetPhone_Number() const { return Phone_Number; }
-string User::GetAddress() const { return Address; }
+string User::GetUserName() const { return userName; }
+string User::GetPhone_Number() const { return phoneNumber; }
+string User::GetAddress() const { return address; }
 Role User::GetRole() const { return role; }
-bool User::GetIs_Active() const { return Is_Active; }
-string User::GetCreated_At() const { return Created_At; }
+bool User::GetIs_Active() const { return isActive; }
+string User::GetCreated_At() const { return createdAt; }
+
+bool User::CheckPassword(const string &input) const { return password == input; }
 
 void User::Print_Details() const
 {
-    string ac = (Is_Active) ? "active" : "inactive";
+    string ac = (isActive) ? "active" : "inactive";
 
     string roleS;
 
@@ -52,15 +53,16 @@ void User::Print_Details() const
         break;
 
     default:
+        roleS = "Unknown";
         break;
     }
 
     cout << "\nid : " << id
-         << "\nusername : " << UserName
+         << "\nusername : " << userName
          << "\nrole : " << roleS
-         << "\nPhone number : " << Phone_Number
-         << "\nAddress : " << Address
+         << "\nPhone number : " << phoneNumber
+         << "\nAddress : " << address
          << "\nactivation status : " << ac
-         << "\ncreated at : " << Created_At
+         << "\ncreated at : " << createdAt
          << endl;
 }

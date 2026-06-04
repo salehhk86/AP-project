@@ -26,23 +26,23 @@ protected:
 public:
     // constructor
     Item(); // default
-    Item(long, std::string, std::string, double, double);
+    Item(long, const std::string &, const std::string &, double, double);
 
-    // distructor
-    virtual ~Item();
+    // destructor
+    virtual ~Item() = default;
 
     // setter
     void SetId(long);
-    void SetName(std::string);
-    void SetDescription(std::string);
+    void SetName(const std::string &);
+    void SetDescription(const std::string &);
     void SetPrice(double);
     void SetTax(double);
     void SetStatus(bool);
 
     // getter
     long GetId() const;
-    std::string GetName() const;
-    std::string GetDescription() const;
+    const std::string &GetName() const;
+    const std::string &GetDescription() const;
     double GetPrice() const;
     double GetTax() const;
     bool GetStatus() const;

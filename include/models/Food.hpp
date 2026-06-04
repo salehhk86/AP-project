@@ -14,17 +14,17 @@ private:
 public:
     // constructor
     Food();
-    Food(long, std::string, std::string, double, double, float, bool, int);
+    Food(long, const std::string &, const std::string &, double, double, float, bool, int);
 
     // setter
     void SetCalories(float);
-    void SetisVegan(bool);
-    void SetpreparationTimeMinutes(int);
+    void SetIsVegan(bool);
+    void SetPreparationTimeMinutes(int);
 
     // getter
     float GetCalories() const;
-    bool GetisVegan() const;
-    int GetpreparationTimeMinutes() const;
+    bool GetIsVegan() const;
+    int GetPreparationTimeMinutes() const;
 
     // virtual's override
     ItemType GetType() const override;

@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <string>
-#include <iostream>
 
 enum class OrderStatus
 {
@@ -35,21 +34,21 @@ private:
 public:
     // constructor
     Order();
-    Order(long, long, long, OrderStatus, std::string);
+    Order(long, long, long, OrderStatus, const std::string &);
 
     // setter
     void SetOrderId(long);
     void SetCustomerId(long);
     void SetRestaurantId(long);
     void SetStatus(OrderStatus);
-    void SetCreatedAt(std::string);
+    void SetCreatedAt(const std::string &);
 
     // getter
     long GetOrderId() const;
     long GetCustomerId() const;
     long GetRestaurantId() const;
     OrderStatus GetStatus() const;
-    std::string GetCreatedAt() const;
+    const std::string &GetCreatedAt() const;
 
     // order lines operation
     double GetTotalPrice() const;
@@ -59,7 +58,7 @@ public:
     void ChangeLineQuantity(long, int);
     void ClearLines();
 
-    std::string OrderStatusToString() const;
+    const char *OrderStatusToString() const;
 
     void PrintDetails() const;
 };

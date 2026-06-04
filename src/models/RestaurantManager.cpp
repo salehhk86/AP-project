@@ -4,11 +4,18 @@
 
 using namespace std;
 
+// private
+void RestaurantManager::EnsureOwnership(const Restaurant &restaurant) const
+{
+    if (restaurant.GetId() != restaurantId)
+        throw runtime_error("Manager cannot modify another restaurant.");
+}
+
 // constructor
 RestaurantManager::RestaurantManager() : User(), restaurantId(-1) { SetRole(Role::RestaurantManager); }
 
-RestaurantManager::RestaurantManager(long id, string username, string pass, string phone, string address, string createdAt, long Rid)
-    : User(id, username, pass, phone, address, Role::RestaurantManager, createdAt), restaurantId(Rid) {}
+RestaurantManager::RestaurantManager(long id, const string &username, const string &pass, const string &phone, const string &address, const string &createdAt, long restaurantid)
+    : User(id, username, pass, phone, address, Role::RestaurantManager, createdAt), restaurantId(restaurantid) {}
 
 // setter
 void RestaurantManager::SetRestaurantId(long id) { restaurantId = id; }
@@ -19,48 +26,49 @@ long RestaurantManager::GetRestaurantId() const { return restaurantId; }
 // restaurant managing
 void RestaurantManager::AddMenuItem(Restaurant &restaurant, unique_ptr<Item> item)
 {
-    if (restaurant.GetId() != restaurantId)
-        throw runtime_error("Manager cannot modify another restaurant.");
+    EnsureOwnership(restaurant);
+
+    if (!item)
+        throw invalid_argument("Item pointer is null.");
+
     restaurant.AddMenuItem(move(item));
 }
 
 bool RestaurantManager::RemoveMenuItem(Restaurant &restaurant, long itemId)
 {
-    if (restaurant.GetId() != restaurantId)
-        throw runtime_error("Manager cannot modify another restaurant.");
+    EnsureOwnership(restaurant);
+
     return restaurant.RemoveMenuItemById(itemId);
 }
 
 void RestaurantManager::UpdateMenuItemPrice(Restaurant &restaurant, long itemId, double newPrice)
 {
-    if (restaurant.GetId() != restaurantId)
-        throw runtime_error("Manager cannot modify another restaurant.");
+    EnsureOwnership(restaurant);
 
     Item *item = restaurant.FindMenuItemById(itemId);
     if (!item)
-        throw std::runtime_error("Menu item not found.");
+        throw runtime_error("Menu item not found.");
+
     item->SetPrice(newPrice);
 }
 
 void RestaurantManager::UpdateMenuItemDescription(Restaurant &restaurant, long itemId, const string &newDesc)
 {
-    if (restaurant.GetId() != restaurantId)
-        throw runtime_error("Manager cannot modify another restaurant.");
+    EnsureOwnership(restaurant);
 
     Item *item = restaurant.FindMenuItemById(itemId);
     if (!item)
-        throw std::runtime_error("Menu item not found.");
+        throw runtime_error("Menu item not found.");
     item->SetDescription(newDesc);
 }
 
 void RestaurantManager::UpdateMenuItemAvailability(Restaurant &restaurant, long itemId, bool available)
 {
-    if (restaurant.GetId() != restaurantId)
-        throw runtime_error("Manager cannot modify another restaurant.");
+    EnsureOwnership(restaurant);
 
     Item *item = restaurant.FindMenuItemById(itemId);
     if (!item)
-        throw std::runtime_error("Menu item not found.");
+        throw runtime_error("Menu item not found.");
     item->SetStatus(available);
 }
 

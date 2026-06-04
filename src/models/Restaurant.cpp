@@ -1,25 +1,28 @@
-#include <Restaurant.hpp>
+#include "Restaurant.hpp"
+#include <stdexcept>
+
+using namespace std;
 
 // constructor
 Restaurant::Restaurant() : id(-1), name(""), address(""),
                            isActive(false), number(""), description("") {}
 
-Restaurant::Restaurant(long i, string nam, string a, bool ac, string num, string desc)
+Restaurant::Restaurant(long i, const string &nam, const string &a, bool ac, const string &num, const string &desc)
     : id(i), name(nam), address(a), isActive(ac), number(num), description(desc) {}
 
 // setter
 void Restaurant::SetId(long i) { id = i; }
-void Restaurant::SetName(string &nam) { name = nam; }
-void Restaurant::SetAddress(string &a) { address = a; }
-void Restaurant::SetisActive(bool ac) { isActive = ac; }
-void Restaurant::SetNumber(string &num) { number = num; }
-void Restaurant::SetDescription(string &desc) { description = desc; }
+void Restaurant::SetName(const string &nam) { name = nam; }
+void Restaurant::SetAddress(const string &a) { address = a; }
+void Restaurant::SetIsActive(bool ac) { isActive = ac; }
+void Restaurant::SetNumber(const string &num) { number = num; }
+void Restaurant::SetDescription(const string &desc) { description = desc; }
 
 // getter
 long Restaurant::GetId() const { return id; }
 const string &Restaurant::GetName() const { return name; }
 const string &Restaurant::GetAddress() const { return address; }
-bool Restaurant::GetisActive() const { return isActive; }
+bool Restaurant::GetIsActive() const { return isActive; }
 const string &Restaurant::GetNumber() const { return number; }
 const string &Restaurant::GetDescription() const { return description; }
 
@@ -27,12 +30,20 @@ const string &Restaurant::GetDescription() const { return description; }
 void Restaurant::AddMenuItem(unique_ptr<Item> item)
 {
     if (!item)
-        return menu.push_back(move(item)); // it is a unique ptr so we can't take a copy . we move the orginal in vector (move)! // now item is nullptr
+        throw invalid_argument("Null item pointer passed to AddMenuItem");
+
+    for (const auto &i : menu)
+    {
+        if (i && i->GetId() == item->GetId())
+            throw runtime_error("Duplicate item id.");
+    }
+
+    menu.push_back(move(item)); // it is a unique ptr so we can't take a copy . we move the orginal in vector (move)! // now item is nullptr
 }
 
 bool Restaurant::RemoveMenuItemById(long id)
 {
-    for (auto item = menu.begin(); item != menu.end(); item++) // item is a uniqe ptr in vecrot and menu.begin give us the address of first ptr of vector
+    for (auto item = menu.begin(); item != menu.end(); ++item) // item is a uniqe ptr in vecrot and menu.begin give us the address of first ptr of vector
     {
         if (*item && (*item)->GetId() == id)
         {
@@ -79,7 +90,7 @@ void Restaurant::PrintSummary() const
          << "Description: " << description << "\n";
 }
 
-void Restaurant::PrintMenu(bool onlyAvailable = true) const
+void Restaurant::PrintMenu(bool onlyAvailable) const
 {
     cout << "--- Menu of " << name << " ---\n";
 

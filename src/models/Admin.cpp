@@ -1,17 +1,28 @@
 #include "Admin.hpp"
 #include <iostream>
+#include <stdexcept>
 
 using namespace std;
 
 Admin::Admin() : User() { SetRole(Role::Admin); }
 
-Admin::Admin(long id, string username, string pass, string phone, string address, string createdAt)
+Admin::Admin(long id, const string &username, const string &pass, const string &phone, const string &address, const string &createdAt)
     : User(id, username, pass, phone, address, Role::Admin, createdAt) {}
 
 // admin'S operator
-void Admin::RegisterRestaurant(vector<Restaurant> &restaurants, const Restaurant &restaurant) { restaurants.push_back(restaurant); }
-void Admin::ActivateRestaurant(Restaurant &restaurant) { restaurant.SetisActive(true); }
-void Admin::DeactivateRestaurant(Restaurant &restaurant) { restaurant.SetisActive(false); }
+void Admin::RegisterRestaurant(vector<Restaurant> &restaurants, const Restaurant &restaurant)
+{
+    for (const auto &r : restaurants)
+    {
+        if (r.GetId() == restaurant.GetId())
+        {
+            throw std::runtime_error("Restaurant with this ID already exists.");
+        }
+    }
+    restaurants.push_back(restaurant);
+}
+void Admin::ActivateRestaurant(Restaurant &restaurant) { restaurant.SetIsActive(true); }
+void Admin::DeactivateRestaurant(Restaurant &restaurant) { restaurant.SetIsActive(false); }
 
 // totality
 double Admin::GetTotalSales(const vector<Order> &orders) const
@@ -20,7 +31,8 @@ double Admin::GetTotalSales(const vector<Order> &orders) const
 
     for (const auto &order : orders)
     {
-        total += order.GetTotalPrice();
+        if (order.GetStatus() == OrderStatus::Delivered)
+            total += order.GetTotalPrice();
     }
     return total;
 }

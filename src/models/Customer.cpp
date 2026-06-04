@@ -7,7 +7,7 @@ using namespace std;
 // constructor
 Customer::Customer() : User(), cart() { SetRole(Role::Customer); }
 
-Customer::Customer(long id, string username, string pass, string phone, string address, string createdAt)
+Customer::Customer(long id, const string &username, const string &pass, const string &phone, const string &address, const string &createdAt)
     : User(id, username, pass, phone, address, Role::Customer, createdAt), cart(id, -1) {}
 
 // access to cart
@@ -48,7 +48,7 @@ Order Customer::Checkout(long orderId, long restaurantId, const string &createdA
 
 void Customer::Print_Details() const
 {
-    cout << "Customer\n";
+    cout << "\n===== Customer =====\n";
     User::Print_Details();
     cout << "Order count: " << orderHistory.size() << '\n';
 }

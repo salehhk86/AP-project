@@ -1,4 +1,7 @@
 #include "Order.hpp"
+#include <stdexcept>
+#include <iomanip>
+#include <iostream>
 
 using namespace std;
 
@@ -6,7 +9,7 @@ using namespace std;
 Order::Order() : orderId(-1), customerId(-1), restaurantId(-1),
                  status(OrderStatus::Pending), createdAt("") {}
 
-Order::Order(long o, long c, long r, OrderStatus s, string ca)
+Order::Order(long o, long c, long r, OrderStatus s, const string &ca)
     : orderId(o), customerId(c), restaurantId(r), status(s), createdAt(ca) {}
 
 // setter
@@ -14,14 +17,14 @@ void Order::SetOrderId(long o) { orderId = o; }
 void Order::SetCustomerId(long c) { customerId = c; }
 void Order::SetRestaurantId(long r) { restaurantId = r; }
 void Order::SetStatus(OrderStatus s) { status = s; }
-void Order::SetCreatedAt(string ca) { createdAt = ca; }
+void Order::SetCreatedAt(const string &ca) { createdAt = ca; }
 
 // getter
 long Order::GetOrderId() const { return orderId; }
 long Order::GetCustomerId() const { return customerId; }
 long Order::GetRestaurantId() const { return restaurantId; }
 OrderStatus Order::GetStatus() const { return status; }
-string Order::GetCreatedAt() const { return createdAt; }
+const string &Order::GetCreatedAt() const { return createdAt; }
 
 // order lines operation
 double Order::GetTotalPrice() const
@@ -38,8 +41,11 @@ const vector<Order::OrderLine> &Order::GetLines() const { return lines; }
 
 void Order::AddLine(long id, int quant, double price)
 {
-    if (quant <= 0 || price < 0)
-        return;
+    if (quant <= 0)
+        throw invalid_argument("Quantity must be greater than zero");
+
+    if (price < 0)
+        throw invalid_argument("Price cannot be negative");
 
     for (auto &a : lines)
     {
@@ -55,11 +61,11 @@ void Order::AddLine(long id, int quant, double price)
 
 bool Order::RemoveLine(long id)
 {
-    for (auto l = lines.begin(); l != lines.end(); l++)
+    for (auto it = lines.begin(); it != lines.end(); ++it)
     {
-        if (id == l->itemId)
+        if (id == it->itemId)
         {
-            lines.erase(l);
+            lines.erase(it);
             return true;
         }
     }
@@ -90,7 +96,7 @@ void Order::ChangeLineQuantity(long id, int newQuant)
 
 void Order::ClearLines() { lines.clear(); }
 
-string Order::OrderStatusToString() const
+const char *Order::OrderStatusToString() const
 {
     switch (status)
     {
@@ -116,19 +122,22 @@ string Order::OrderStatusToString() const
 
 void Order::PrintDetails() const
 {
+    cout << fixed << setprecision(2);
+
     cout << "\n===== Order Details ====="
          << "\nOrder ID: " << orderId
          << "\nCustomer ID: " << customerId
          << "\nRestaurant ID: " << restaurantId
          << "\nCreated At: " << createdAt
-         << "\nStatus: " << this->OrderStatusToString()
+         << "\nStatus: " << OrderStatusToString()
          << "\nItems:";
-    for (const auto &l : lines)
+
+    for (const auto &it : lines)
     {
-        cout << "\nItem ID: " << l.itemId
-             << " | Quantity: " << l.quantity
-             << " | Unit Price: " << l.unitPrice
-             << " | Line Total: " << (l.quantity * l.unitPrice);
+        cout << "\nItem ID: " << it.itemId
+             << " | Quantity: " << it.quantity
+             << " | Unit Price: " << it.unitPrice
+             << " | Line Total: " << (it.quantity * it.unitPrice);
     }
 
     cout << "\nTotal Price: " << GetTotalPrice() << endl;

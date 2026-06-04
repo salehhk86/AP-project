@@ -11,7 +11,7 @@ class Admin : public User
 public:
     // constructor
     Admin();
-    Admin(long, std::string, std::string, std::string, std::string, std::string);
+    Admin(long, const std::string &, const std::string &, const std::string &, const std::string &, const std::string &);
 
     // admin's operator
     void RegisterRestaurant(std::vector<Restaurant> &, const Restaurant &);

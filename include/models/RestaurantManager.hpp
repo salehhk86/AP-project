@@ -13,10 +13,12 @@ class RestaurantManager : public User
 private:
     long restaurantId;
 
+    void EnsureOwnership(const Restaurant &restaurant) const;
+
 public:
     // constructor
     RestaurantManager();
-    RestaurantManager(long, std::string, std::string, std::string, std::string, std::string, long);
+    RestaurantManager(long, const std::string &, const std::string &, const std::string &, const std::string &, const std::string &, long);
 
     // setter
     void SetRestaurantId(long);

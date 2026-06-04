@@ -2,7 +2,6 @@
 #define USER_HPP
 
 #include <string>
-#include <iostream>
 
 enum class Role
 {
@@ -13,33 +12,33 @@ enum class Role
 
 class User
 {
-private:
+protected:
     long id;
-    std::string UserName;
+    std::string userName;
     std::string password;
-    std::string Phone_Number;
-    std::string Address;
+    std::string phoneNumber;
+    std::string address;
     Role role; // customer , manager , admin
-    bool Is_Active;
-    std::string Created_At;
+    bool isActive;
+    std::string createdAt;
 
 public:
     // constructor
     User(); // default cons
-    User(long, std::string, std::string, std::string, std::string, Role, std::string);
+    User(long, const std::string &, const std::string &, const std::string &, const std::string &, Role, const std::string &);
 
     // distructor
-    virtual ~User();
+    virtual ~User() = default;
 
     // Setter
     void SetId(long);
-    void SetUserName(std::string);
-    void SetPassword(std::string);
-    void SetPhone_Number(std::string);
-    void SetAddress(std::string);
+    void SetUserName(const std::string &);
+    void SetPassword(const std::string &);
+    void SetPhone_Number(const std::string &);
+    void SetAddress(const std::string &);
     void SetRole(Role);
     void SetIs_Active(bool);
-    void SetCreated_At(std::string);
+    void SetCreated_At(const std::string &);
 
     // Getter
     long GetId() const;
@@ -49,6 +48,8 @@ public:
     Role GetRole() const;
     bool GetIs_Active() const;
     std::string GetCreated_At() const;
+
+    bool CheckPassword(const std::string &) const;
 
     virtual void Print_Details() const;
 };

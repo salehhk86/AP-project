@@ -17,7 +17,7 @@ private:
 public:
     // constructor
     Customer();
-    Customer(long, std::string, std::string, std::string, std::string, std::string);
+    Customer(long, const std::string &, const std::string &, const std::string &, const std::string &, const std::string &);
 
     // access to cart
     Cart &GetCart();

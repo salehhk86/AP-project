@@ -1,5 +1,6 @@
 #include "Food.hpp"
 
+using namespace std;
 
 // constructor
 Food::Food() // default cons
@@ -7,32 +8,33 @@ Food::Food() // default cons
 {
 }
 
-Food::Food(long i, std::string n, std::string d, double p, double t, float c, bool v, int ti)
-    : Item(i, n, d, p, t), isVegan(v)
+Food::Food(long i, const string &n, const string &d, double p, double t, float c, bool v, int ti)
+    : Item(i, n, d, p, t), calories(0.0f), isVegan(v), preparationTimeMinutes(0)
 {
     this->SetCalories(c);
-    this->SetpreparationTimeMinutes(ti);
+    this->SetPreparationTimeMinutes(ti);
 }
 
 // Setter
-void Food::SetCalories(float c) { calories = (c > 0.0) ? c : 0.0; }
-void Food::SetisVegan(bool v) { isVegan = v; }
-void Food::SetpreparationTimeMinutes(int t) { preparationTimeMinutes = (t > 0) ? t : 0; }
+void Food::SetCalories(float c) { calories = (c >= 0.0) ? c : 0.0; }
+void Food::SetIsVegan(bool v) { isVegan = v; }
+void Food::SetPreparationTimeMinutes(int t) { preparationTimeMinutes = (t > 0) ? t : 0; }
 
 // Getter
 float Food::GetCalories() const { return calories; }
-bool Food::GetisVegan() const { return isVegan; }
-int Food::GetpreparationTimeMinutes() const { return preparationTimeMinutes; }
+bool Food::GetIsVegan() const { return isVegan; }
+int Food::GetPreparationTimeMinutes() const { return preparationTimeMinutes; }
 
 ItemType Food::GetType() const { return ItemType::Food; }
 
 void Food::Print() const
 {
-    std::cout << "[Food] " << GetName() << " | ID: " << GetId() << "\n"
-              << "Desc: " << GetDescription() << "\n"
-              << "Calories: " << calories << " | Vegan: " << (isVegan ? "Yes" : "No") << "\n"
-              << "preparation time: " << preparationTimeMinutes << " min\n"
-              << "Price: " << std::fixed << std::setprecision(2) << GetPrice()
-              << " | Final: " << FinalPrice() << "\n"
-              << "--------------------------\n";
+    cout << "[Food] " << GetName() << " | ID: " << GetId() << "\n"
+         << "Desc: " << GetDescription() << "\n"
+         << "Calories: " << GetCalories()
+         << " | Vegan: " << (GetIsVegan() ? "Yes" : "No") << "\n"
+         << "Preparation time: " << GetPreparationTimeMinutes() << " min\n"
+         << "Price: " << fixed << setprecision(2) << GetPrice()
+         << " | Final: " << FinalPrice() << "\n"
+         << "--------------------------\n";
 }

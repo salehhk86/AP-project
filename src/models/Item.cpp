@@ -1,4 +1,7 @@
 #include "Item.hpp"
+#include <stdexcept>
+
+using namespace std;
 
 // constructor
 Item::Item() // default cons
@@ -6,27 +9,35 @@ Item::Item() // default cons
 {
 }
 
-Item::Item(long i, std::string n, std::string d, double p, double t)
-    : id(i), name(n), description(d), status(true)
+Item::Item(long i, const std::string &n, const std::string &d, double p, double t)
+    : id(i), name(n), description(d), price(0.0), tax(0.0), status(true)
 {
     this->SetPrice(p);
     this->SetTax(t);
 }
 
-Item::~Item() = default;
-
 // setter
 void Item::SetId(long i) { id = i; }
-void Item::SetName(std::string n) { name = n; }
-void Item::SetDescription(std::string d) { description = d; }
-void Item::SetPrice(double p) { price = (p > 0) ? p : 0.0; }
-void Item::SetTax(double t) { tax = (t >= 0 && t < 100) ? t : 0.0; }
+void Item::SetName(const string &n) { name = n; }
+void Item::SetDescription(const string &d) { description = d; }
+void Item::SetPrice(double p)
+{
+    if (p <= 0)
+        throw invalid_argument("Price must be greater than zero.");
+    price = p;
+}
+void Item::SetTax(double t)
+{
+    if (t < 0 || t > 100)
+        throw invalid_argument("Tax must be between 0 and 100.");
+    tax = t;
+}
 void Item::SetStatus(bool a) { status = a; }
 
 // getter
 long Item::GetId() const { return id; }
-std::string Item::GetName() const { return name; }
-std::string Item::GetDescription() const { return description; }
+const string &Item::GetName() const { return name; }
+const string &Item::GetDescription() const { return description; }
 double Item::GetPrice() const { return price; }
 double Item::GetTax() const { return tax; }
 bool Item::GetStatus() const { return status; }
