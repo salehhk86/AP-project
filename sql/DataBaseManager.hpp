@@ -12,13 +12,13 @@ private:
 
 public:
     //constructor . opening
-    DataBaseManager(const std::string &dbFile);
+    DataBaseManager(const std::string &);
     //destructor . closing
     ~DataBaseManager();
     //getter . let other classes access to database
     sqlite3* GetDB() const;
     // create . insert . update . delete
-    void ExecuteQuery(const std::string &query);
+    void ExecuteQuery(const std::string &);
 };
 
 #endif

@@ -24,6 +24,7 @@ void User::SetCreated_At(const string &c) { createdAt = c; }
 // getter
 long User::GetId() const { return id; }
 string User::GetUserName() const { return userName; }
+string User::GetPassword() const { return password; }
 string User::GetPhone_Number() const { return phoneNumber; }
 string User::GetAddress() const { return address; }
 Role User::GetRole() const { return role; }

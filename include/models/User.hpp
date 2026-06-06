@@ -43,6 +43,7 @@ public:
     // Getter
     long GetId() const;
     std::string GetUserName() const;
+    std::string GetPassword() const; // only for data base
     std::string GetPhone_Number() const;
     std::string GetAddress() const;
     Role GetRole() const;
