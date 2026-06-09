@@ -11,7 +11,7 @@ void RestaurantDAO::CreateTable()
                       "ID INTEGER PRIMARY KEY AUTOINCREMENT, " // id is unique
                       "NAME TEXT NOT NULL, "
                       "ADDRESS TEXT, "
-                      "IS_ACTIVE INTEGER, " // true 1 , false 0
+                      "IS_ACTIVE INTEGER, " // true = 1 , false = 0
                       "PHONE_NUMBER TEXT, "
                       "DESCRIPTION TEXT);";
 
@@ -34,48 +34,50 @@ bool RestaurantDAO::Create(const Restaurant &restaurant)
     sqlite3_bind_text(stmt, 4, restaurant.GetNumber().c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 5, restaurant.GetDescription().c_str(), -1, SQLITE_TRANSIENT);
 
-    bool success = (sqlite3_step(stmt) == SQLITE_DONE); // do the taxt
-    sqlite3_finalize(stmt);                             // free the src and memorys
+    bool success = (sqlite3_step(stmt) == SQLITE_DONE); // execute the command
+    sqlite3_finalize(stmt);                             // free memory
     return success;
 }
 
 // read
-unique_ptr<Restaurant> RestaurantDAO::ReadById(long id)
+unique_ptr<Restaurant> RestaurantDAO::ReadById(long long id)
 {
     // SELECT
-    const char *sql = "SELECT ID, NAME, ADDRESS, IS_ACTIVE, PHONE_NUMBER, DESCRIPTION FROM RESTAURANT WHERE ID = ?;"; // ? for the security
+    const char *sql = "SELECT ID, NAME, ADDRESS, IS_ACTIVE, PHONE_NUMBER, DESCRIPTION FROM RESTAURANT WHERE ID = ?;";
 
     sqlite3_stmt *stmt;
 
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
         return nullptr;
-    // data base with SELECT will find the right restaurant (no need for(;;))
-    sqlite3_bind_int64(stmt, 1, id); // for (?)
+
+    sqlite3_bind_int64(stmt, 1, id);
 
     unique_ptr<Restaurant> restaurant = nullptr;
 
-    // STEP = do the taxt
     if (sqlite3_step(stmt) == SQLITE_ROW)
     {
-        // rows start from 0 like array
+        const char *name = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
+        const char *address = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
+        const char *phone = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 4));
+        const char *desc = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 5));
+
         restaurant = make_unique<Restaurant>(
-            sqlite3_column_int64(stmt, 0),                                // ID
-            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)), // Name
-            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2)), // Address
-            sqlite3_column_int(stmt, 3) != 0,                             // IsActive (تبدیل int به bool)
-            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 4)), // Number
-            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 5))  // Description
-            // sqlite3 will return unsigned char* but we need char* or string so we use reiterpret_cast<const char*>
-        );
+            sqlite3_column_int64(stmt, 0), // ID
+            name ? name : "",
+            address ? address : "",
+            sqlite3_column_int(stmt, 3) != 0,
+            phone ? phone : "",
+            desc ? desc : "");
     }
-    sqlite3_finalize(stmt); // free the src and memorys
+
+    sqlite3_finalize(stmt);
     return restaurant;
 }
 
 vector<unique_ptr<Restaurant>> RestaurantDAO::ReadAll()
 {
     vector<unique_ptr<Restaurant>> list;
-    // SELECT
+
     const char *sql = "SELECT ID, NAME, ADDRESS, IS_ACTIVE, PHONE_NUMBER, DESCRIPTION FROM RESTAURANT;";
 
     sqlite3_stmt *stmt;
@@ -83,26 +85,31 @@ vector<unique_ptr<Restaurant>> RestaurantDAO::ReadAll()
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
         return list;
 
-    while (sqlite3_step(stmt) == SQLITE_ROW) // while there is a row
+    while (sqlite3_step(stmt) == SQLITE_ROW)
     {
+        const char *name = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
+        const char *address = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
+        const char *phone = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 4));
+        const char *desc = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 5));
+
         auto restaurant = make_unique<Restaurant>(
-            sqlite3_column_int64(stmt, 0),                                // ID
-            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)), // Name
-            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2)), // Address
-            sqlite3_column_int(stmt, 3) != 0,                             // IsActive (int to bool)
-            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 4)), // Number
-            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 5))  // Description
-        );
-        list.push_back(move(restaurant)); // move the ownership
+            sqlite3_column_int64(stmt, 0),
+            name ? name : "",
+            address ? address : "",
+            sqlite3_column_int(stmt, 3) != 0,
+            phone ? phone : "",
+            desc ? desc : "");
+
+        list.push_back(move(restaurant)); // transfer ownership
     }
-    sqlite3_finalize(stmt); // free the memorys
+
+    sqlite3_finalize(stmt);
     return list;
 }
 
 // update
 bool RestaurantDAO::Update(const Restaurant &restaurant)
 {
-    // update
     const char *sql = "UPDATE RESTAURANT SET NAME=?, ADDRESS=?, IS_ACTIVE=?, PHONE_NUMBER=?, DESCRIPTION=? WHERE ID=?;";
 
     sqlite3_stmt *stmt;
@@ -117,24 +124,26 @@ bool RestaurantDAO::Update(const Restaurant &restaurant)
     sqlite3_bind_text(stmt, 5, restaurant.GetDescription().c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_int64(stmt, 6, restaurant.GetId());
 
-    bool success = (sqlite3_step(stmt) == SQLITE_DONE); // do the taxt
-    sqlite3_finalize(stmt);                           // free the memory
-    return success;
+    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
+    sqlite3_finalize(stmt);
+
+    return success && sqlite3_changes(db) > 0;
 }
 
-bool RestaurantDAO::Delete(long id)
+// delete
+bool RestaurantDAO::Delete(long long id)
 {
-    // DELETE
     const char *sql = "DELETE FROM RESTAURANT WHERE ID = ?;";
 
     sqlite3_stmt *stmt;
 
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
         return false;
-        
+
     sqlite3_bind_int64(stmt, 1, id);
 
-    bool succes = (sqlite3_step(stmt) == SQLITE_DONE);
-    sqlite3_finalize(stmt); // free src
-    return succes;
+    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
+    sqlite3_finalize(stmt);
+
+    return success && sqlite3_changes(db) > 0;
 }

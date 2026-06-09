@@ -8,13 +8,13 @@ UserDAO::UserDAO(sqlite3 *database) : db(database) {}
 void UserDAO::CreateTable()
 {
     const char *sql = "CREATE TABLE IF NOT EXISTS USER ("
-                      "ID INTEGER PRIMARY KEY AUTOINCREMENT, " // id is unique and made by database
+                      "ID INTEGER PRIMARY KEY AUTOINCREMENT, "
                       "USERNAME TEXT NOT NULL UNIQUE, "
                       "PASSWORD TEXT NOT NULL, "
                       "PHONE_NUMBER TEXT, "
                       "ADDRESS TEXT, "
-                      "ROLE INTEGER, "      // customer 0 , restaurantmanager 1 , admin 2
-                      "IS_ACTIVE INTEGER, " // 1 true , 0 false
+                      "ROLE INTEGER, "
+                      "IS_ACTIVE INTEGER, "
                       "CREATED_AT TEXT);";
 
     sqlite3_exec(db, sql, nullptr, nullptr, nullptr);
@@ -22,7 +22,6 @@ void UserDAO::CreateTable()
 
 bool UserDAO::Create(const User &user)
 {
-    // INSERT
     const char *sql =
         "INSERT INTO USER "
         "(USERNAME, PASSWORD, PHONE_NUMBER, ADDRESS, ROLE, IS_ACTIVE, CREATED_AT) "
@@ -42,14 +41,48 @@ bool UserDAO::Create(const User &user)
     sqlite3_bind_text(stmt, 7, user.GetCreated_At().c_str(), -1, SQLITE_TRANSIENT);
 
     bool success = (sqlite3_step(stmt) == SQLITE_DONE);
+
     sqlite3_finalize(stmt);
     return success;
+}
+
+// factory
+unique_ptr<User> UserDAO::CreateUserFromRow(sqlite3_stmt *stmt)
+{
+    long id = sqlite3_column_int64(stmt, 0);
+
+    string username = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
+    string password = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
+    string phone = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3));
+    string address = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 4));
+    Role role = static_cast<Role>(sqlite3_column_int(stmt, 5));
+    bool isActive = sqlite3_column_int(stmt, 6) != 0;
+    string created = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 7));
+
+    unique_ptr<User> user = nullptr;
+
+    if (role == Role::Customer)
+    {
+        user = make_unique<Customer>(id, username, password, phone, address, created);
+    }
+    else if (role == Role::Admin)
+    {
+        user = make_unique<Admin>(id, username, password, phone, address, created);
+    }
+    else if (role == Role::RestaurantManager)
+    {
+        user = make_unique<RestaurantManager>(id, username, password, phone, address, created);
+    }
+
+    if (user)
+        user->SetIs_Active(isActive);
+
+    return user;
 }
 
 // read
 unique_ptr<User> UserDAO::ReadById(long id)
 {
-    // SELECT
     const char *sql =
         "SELECT ID, USERNAME, PASSWORD, PHONE_NUMBER, ADDRESS, ROLE, IS_ACTIVE, CREATED_AT "
         "FROM USER WHERE ID = ?;";
@@ -65,17 +98,9 @@ unique_ptr<User> UserDAO::ReadById(long id)
 
     if (sqlite3_step(stmt) == SQLITE_ROW)
     {
-        user = make_unique<User>(
-            sqlite3_column_int64(stmt, 0),
-            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)),
-            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2)),
-            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3)),
-            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 4)),
-            static_cast<Role>(sqlite3_column_int(stmt, 5)),
-            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 7)));
-
-        user->SetIs_Active(sqlite3_column_int(stmt, 6) != 0); // user's constructor doesn't take isactive
+        user = CreateUserFromRow(stmt);
     }
+
     sqlite3_finalize(stmt);
     return user;
 }
@@ -97,16 +122,7 @@ unique_ptr<User> UserDAO::ReadByUsername(const string &username)
 
     if (sqlite3_step(stmt) == SQLITE_ROW)
     {
-        user = make_unique<User>(
-            sqlite3_column_int64(stmt, 0),
-            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)),
-            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2)),
-            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3)),
-            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 4)),
-            static_cast<Role>(sqlite3_column_int(stmt, 5)),
-            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 7)));
-
-        user->SetIs_Active(sqlite3_column_int(stmt, 6) != 0);
+        user = CreateUserFromRow(stmt);
     }
 
     sqlite3_finalize(stmt);
@@ -116,7 +132,9 @@ unique_ptr<User> UserDAO::ReadByUsername(const string &username)
 vector<unique_ptr<User>> UserDAO::ReadAll()
 {
     vector<unique_ptr<User>> list;
-    const char *sql = "SELECT ID, USERNAME, PASSWORD, PHONE_NUMBER, ADDRESS, ROLE, IS_ACTIVE, CREATED_AT FROM USER;";
+
+    const char *sql =
+        "SELECT ID, USERNAME, PASSWORD, PHONE_NUMBER, ADDRESS, ROLE, IS_ACTIVE, CREATED_AT FROM USER;";
 
     sqlite3_stmt *stmt;
 
@@ -125,18 +143,10 @@ vector<unique_ptr<User>> UserDAO::ReadAll()
 
     while (sqlite3_step(stmt) == SQLITE_ROW)
     {
-        auto user = make_unique<User>(
-            sqlite3_column_int64(stmt, 0),
-            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)),
-            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2)),
-            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3)),
-            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 4)),
-            static_cast<Role>(sqlite3_column_int(stmt, 5)),
-            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 7)));
-        user->SetIs_Active(sqlite3_column_int(stmt, 6) != 0);
-
+        auto user = CreateUserFromRow(stmt);
         list.push_back(move(user));
     }
+
     sqlite3_finalize(stmt);
     return list;
 }
@@ -144,7 +154,8 @@ vector<unique_ptr<User>> UserDAO::ReadAll()
 // update
 bool UserDAO::Update(const User &user)
 {
-    const char *sql = "UPDATE USER SET USERNAME=?, PASSWORD=?, PHONE_NUMBER=?, ADDRESS=?, ROLE=?, IS_ACTIVE=?, CREATED_AT=? WHERE ID=?;";
+    const char *sql =
+        "UPDATE USER SET USERNAME=?, PASSWORD=?, PHONE_NUMBER=?, ADDRESS=?, ROLE=?, IS_ACTIVE=?, CREATED_AT=? WHERE ID=?;";
 
     sqlite3_stmt *stmt;
 
@@ -161,6 +172,7 @@ bool UserDAO::Update(const User &user)
     sqlite3_bind_int64(stmt, 8, user.GetId());
 
     bool success = (sqlite3_step(stmt) == SQLITE_DONE);
+
     sqlite3_finalize(stmt);
     return success;
 }
@@ -178,6 +190,7 @@ bool UserDAO::Delete(long id)
     sqlite3_bind_int64(stmt, 1, id);
 
     bool success = (sqlite3_step(stmt) == SQLITE_DONE);
+
     sqlite3_finalize(stmt);
     return success;
 }

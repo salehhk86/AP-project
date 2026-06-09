@@ -2,6 +2,10 @@
 #define USER_DAO_HPP
 
 #include "User.hpp"
+#include "Customer.hpp"
+#include "Admin.hpp"
+#include "RestaurantManager.hpp"
+
 #include <memory>
 #include <vector>
 #include <sqlite3.h>
@@ -12,22 +16,25 @@ class UserDAO
 private:
     sqlite3 *db;
 
+    std::unique_ptr<User> CreateUserFromRow(sqlite3_stmt *);
+
 public:
     explicit UserDAO(sqlite3 *);
 
-    //create
+    // create
     void CreateTable();
-    bool Create(const User&);
+    bool Create(const User &);
 
-    //read
+    // read
     std::unique_ptr<User> ReadById(long id);
-    std::unique_ptr<User> ReadByUsername(const std::string&);
+    std::unique_ptr<User> ReadByUsername(const std::string &);
     std::vector<std::unique_ptr<User>> ReadAll();
 
-    //update
-    bool Update(const User&);
+    // update
+    bool Update(const User &);
 
-    //delete
+    // delete
     bool Delete(long);
 };
+
 #endif
