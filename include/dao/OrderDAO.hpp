@@ -7,35 +7,34 @@
 #include <memory>
 #include <string>
 
-using namespace std;
-
 class OrderDAO
 {
 private:
     sqlite3 *db;
 
-    vector<Order::OrderLine> GetLines(long orderId);
+    // helper to fetch lines for a specific order
+    std::vector<Order::OrderLine> GetLines(long long orderId);
 
-    // helper 
+    // helper for enums
     static const char *StatusToString(OrderStatus status);
-    static OrderStatus StringToStatus(const string &status);
+    static OrderStatus StringToStatus(const std::string &status);
 
 public:
     explicit OrderDAO(sqlite3 *database);
 
-    //create
+    // create
     void CreateTables();
     bool Create(const Order &order);
 
-    //read
-    unique_ptr<Order> ReadById(long orderId);
-    vector<unique_ptr<Order>> ReadByCustomer(long customerId);
+    // read
+    std::unique_ptr<Order> ReadById(long long orderId);
+    std::vector<std::unique_ptr<Order>> ReadByCustomer(long long customerId);
 
-    //update
-    bool UpdateStatus(long orderId, OrderStatus newStatus);
+    // update
+    bool UpdateStatus(long long orderId, OrderStatus newStatus);
 
-    //delete
-    bool Delete(long orderId);
+    // delete
+    bool Delete(long long orderId);
 };
 
 #endif
