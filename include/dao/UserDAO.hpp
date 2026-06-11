@@ -17,6 +17,7 @@ private:
     sqlite3 *db;
 
     std::unique_ptr<User> CreateUserFromRow(sqlite3_stmt *);
+    static std::string safeStr(sqlite3_stmt *, int);
 
 public:
     explicit UserDAO(sqlite3 *);

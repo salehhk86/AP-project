@@ -52,12 +52,12 @@ bool AppSystem::SignUp(long id, const string &username, const string &pass, cons
 
 User *AppSystem::SignIn(const string &username, const string &pass)
 {
-    int sw = 0;
+    bool sw = false;
     for (const auto &user : users)
     {
         if (username == user->GetUserName())
         {
-            sw = 1;
+            sw = true;
             if (user->CheckPassword(pass))
             {
                 currentUser = user.get(); // method from unique ptr

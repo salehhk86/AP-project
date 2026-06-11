@@ -249,20 +249,24 @@ bool OrderDAO::UpdateStatus(long long orderId, OrderStatus newStatus)
 // delete
 bool OrderDAO::Delete(long long orderId)
 {
-    // Enable foreign key support might be needed for cascading delete
-    // OR manually delete lines:
-    sqlite3_exec(db, "DELETE FROM ORDER_LINES WHERE ORDER_ID = ?;", nullptr, nullptr, nullptr); // Simple approach
-
-    const char *sql = "DELETE FROM ORDERS WHERE ORDER_ID = ?;";
+    // delete lines first (manual cascade)
+    // DELETE
+    const char *linesSql = "DELETE FROM ORDER_LINES WHERE ORDER_ID = ?;";
     sqlite3_stmt *stmt;
 
+    if (sqlite3_prepare_v2(db, linesSql, -1, &stmt, nullptr) == SQLITE_OK)
+    {
+        sqlite3_bind_int64(stmt, 1, orderId);
+        sqlite3_step(stmt);
+        sqlite3_finalize(stmt);
+    }
+
+    const char *sql = "DELETE FROM ORDERS WHERE ORDER_ID = ?;";
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
         return false;
 
     sqlite3_bind_int64(stmt, 1, orderId);
-
     bool success = (sqlite3_step(stmt) == SQLITE_DONE);
     sqlite3_finalize(stmt);
-
     return success && sqlite3_changes(db) > 0;
 }

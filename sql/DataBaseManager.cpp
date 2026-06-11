@@ -7,11 +7,8 @@ using namespace std;
 DataBaseManager::DataBaseManager(const string &dbFile) : db(nullptr)
 {
     if (sqlite3_open(dbFile.c_str(), &db) != SQLITE_OK)
-    {
-        cerr << "Erorr open Database : " << sqlite3_errmsg(db) << endl;
-    }
-    else
-        cout << "Opened Database Successfully!\n";
+        throw runtime_error("Error opening database: " + string(sqlite3_errmsg(db)));
+    cout << "Opened Database Successfully!\n";
 }
 
 DataBaseManager::~DataBaseManager()
@@ -28,14 +25,11 @@ sqlite3 *DataBaseManager::GetDB() const { return db; }
 
 void DataBaseManager::ExecuteQuery(const string &query)
 {
-    char *massageError = nullptr;
-    int result = sqlite3_exec(db, query.c_str(), nullptr, 0, &massageError);
-    if (result != SQLITE_OK)
+    char *messageError = nullptr;
+    if (sqlite3_exec(db, query.c_str(), nullptr, nullptr, &messageError) != SQLITE_OK)
     {
-        string error = massageError;
-        sqlite3_free(massageError);
-        throw runtime_error("SQL ERORR : " + error);
+        string error = messageError;
+        sqlite3_free(messageError);
+        throw runtime_error("SQL Error: " + error);
     }
-    else
-        cout << "Query done Seccussfully!\n";
 }

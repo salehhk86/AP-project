@@ -13,28 +13,28 @@ private:
     sqlite3 *db;
 
     // helper to fetch lines for a specific order
-    std::vector<Order::OrderLine> GetLines(long long orderId);
+    std::vector<Order::OrderLine> GetLines(long long);
 
     // helper for enums
-    static const char *StatusToString(OrderStatus status);
-    static OrderStatus StringToStatus(const std::string &status);
+    static const char *StatusToString(OrderStatus);
+    static OrderStatus StringToStatus(const std::string &);
 
 public:
-    explicit OrderDAO(sqlite3 *database);
+    explicit OrderDAO(sqlite3 *);
 
     // create
     void CreateTables();
-    bool Create(const Order &order);
+    bool Create(const Order &);
 
     // read
-    std::unique_ptr<Order> ReadById(long long orderId);
-    std::vector<std::unique_ptr<Order>> ReadByCustomer(long long customerId);
+    std::unique_ptr<Order> ReadById(long long);
+    std::vector<std::unique_ptr<Order>> ReadByCustomer(long long);
 
     // update
-    bool UpdateStatus(long long orderId, OrderStatus newStatus);
+    bool UpdateStatus(long long, OrderStatus);
 
     // delete
-    bool Delete(long long orderId);
+    bool Delete(long long);
 };
 
 #endif
