@@ -1,49 +1,47 @@
 @echo off
+cd /d "%~dp0"
 echo ===== Building Food Order System =====
 
-:: چک کردن g++
-where g++ >nul 2>nul
+if not exist build mkdir build
+
+echo Compiling sqlite3.c with gcc...
+gcc -c src\models\sqlite3.c -o build\sqlite3.o
 if %errorlevel% neq 0 (
-    echo ERROR: g++ not found!
-    echo Please install MinGW from: https://www.mingw-w64.org/downloads/
-    echo Or install MSYS2 from: https://www.msys2.org/
-    pause
-    exit /b 1
+    echo ERROR: sqlite3 compilation failed.
+    pause & exit /b 1
 )
 
-:: کامپایل مستقیم بدون cmake
+echo Compiling project with g++...
 g++ -std=c++17 -o FoodOrderSystem.exe ^
-    main.cpp ^
-    User.cpp ^
-    Customer.cpp ^
-    Admin.cpp ^
-    RestaurantManager.cpp ^
-    Restaurant.cpp ^
-    Cart.cpp ^
-    Order.cpp ^
-    Item.cpp ^
-    Food.cpp ^
-    Drink.cpp ^
-    OtherItem.cpp ^
-    AppSystem.cpp ^
-    Menus.cpp ^
-    DataBaseManager.cpp ^
-    UserDAO.cpp ^
-    RestaurantDAO.cpp ^
-    ItemDAO.cpp ^
-    OrderDAO.cpp ^
-    sqlite3.c ^
-    -I. -lpthread
+    main\main.cpp ^
+    main\Menus.cpp ^
+    src\models\User.cpp ^
+    src\models\Customer.cpp ^
+    src\models\Admin.cpp ^
+    src\models\RestaurantManager.cpp ^
+    src\models\Restaurant.cpp ^
+    src\models\Cart.cpp ^
+    src\models\Order.cpp ^
+    src\models\Item.cpp ^
+    src\models\Food.cpp ^
+    src\models\Drink.cpp ^
+    src\models\OtherItem.cpp ^
+    src\models\AppSystem.cpp ^
+    src\models\DataBaseManager.cpp ^
+    src\dao\ItemDAO.cpp ^
+    src\dao\OrderDAO.cpp ^
+    src\dao\RestaurantDAO.cpp ^
+    src\dao\UserDAO.cpp ^
+    build\sqlite3.o ^
+    -I include\models ^
+    -I include\dao ^
+    -I main
 
 if %errorlevel% neq 0 (
     echo ERROR: Compilation failed.
-    pause
-    exit /b 1
+    pause & exit /b 1
 )
 
 echo ===== Build Successful! =====
-echo.
-echo Running program...
-echo.
 FoodOrderSystem.exe
 pause

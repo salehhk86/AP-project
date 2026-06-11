@@ -15,7 +15,7 @@ public:
     Admin(long, const std::string &, const std::string &, const std::string &, const std::string &, const std::string &);
 
     // admin's operator
-    void RegisterRestaurant(std::vector<unique_ptr<Restaurant>> &, unique_ptr<Restaurant> &);
+    void RegisterRestaurant(std::vector<std::unique_ptr<Restaurant>> &, std::unique_ptr<Restaurant> &);
     void ActivateRestaurant(Restaurant &);
     void DeactivateRestaurant(Restaurant &);
 
