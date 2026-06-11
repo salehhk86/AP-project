@@ -15,7 +15,8 @@ ItemType OtherItem::GetType() const { return ItemType::Other; }
 
 void OtherItem::Print() const
 {
-    cout << "[Other Item] " << GetName() << " | ID: " << GetId() << "\n"
+    cout << "=== Other Items ===" << GetName() 
+         << " | ID: " << GetId() << "\n"
          << "Desc: " << GetDescription() << "\n"
          << "Price: " << fixed << setprecision(2) << GetPrice()
          << " | Final: " << FinalPrice() << "\n"

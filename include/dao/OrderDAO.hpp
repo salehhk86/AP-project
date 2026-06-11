@@ -29,6 +29,7 @@ public:
     // read
     std::unique_ptr<Order> ReadById(long long);
     std::vector<std::unique_ptr<Order>> ReadByCustomer(long long);
+    std::vector<std::unique_ptr<Order>> ReadByRestaurant(long long);
 
     // update
     bool UpdateStatus(long long, OrderStatus);

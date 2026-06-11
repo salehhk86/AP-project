@@ -3,7 +3,10 @@
 
 using namespace std;
 
-OrderDAO::OrderDAO(sqlite3 *database) : db(database) {}
+OrderDAO::OrderDAO(sqlite3 *database) : db(database)
+{
+    sqlite3_exec(db, "PRAGMA foreign_keys = ON;", nullptr, nullptr, nullptr);
+}
 
 // helper
 vector<Order::OrderLine> OrderDAO::GetLines(long long orderId)
@@ -86,7 +89,7 @@ void OrderDAO::CreateTables()
             QUANTITY INTEGER NOT NULL,
             UNIT_PRICE REAL NOT NULL,
             PRIMARY KEY (ORDER_ID, ITEM_ID),
-            FOREIGN KEY (ORDER_ID) REFERENCES ORDERS(ORDER_ID) ON DELETE CASCADE
+            FOREIGN KEY (ORDER_ID) REFERENCES ORDERS(ORDER_ID)
         );
     )";
 
@@ -228,6 +231,30 @@ vector<unique_ptr<Order>> OrderDAO::ReadByCustomer(long long customerId)
     return orders;
 }
 
+vector<unique_ptr<Order>> OrderDAO::ReadByRestaurant(long long restaurantId)
+{
+    // SELECT
+    const char *sql = "SELECT ORDER_ID FROM ORDERS WHERE RESTAURANT_ID = ?;";
+    sqlite3_stmt *stmt;
+    vector<unique_ptr<Order>> orders;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+        return orders;
+
+    sqlite3_bind_int64(stmt, 1, restaurantId);
+
+    while (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+        long long orderId = sqlite3_column_int64(stmt, 0);
+        auto order = ReadById(orderId);
+        if (order)
+            orders.push_back(move(order));
+    }
+
+    sqlite3_finalize(stmt);
+    return orders;
+}
+
 // update
 bool OrderDAO::UpdateStatus(long long orderId, OrderStatus newStatus)
 {
@@ -249,7 +276,8 @@ bool OrderDAO::UpdateStatus(long long orderId, OrderStatus newStatus)
 // delete
 bool OrderDAO::Delete(long long orderId)
 {
-    // delete lines first (manual cascade)
+    sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
+
     // DELETE
     const char *linesSql = "DELETE FROM ORDER_LINES WHERE ORDER_ID = ?;";
     sqlite3_stmt *stmt;
@@ -263,10 +291,21 @@ bool OrderDAO::Delete(long long orderId)
 
     const char *sql = "DELETE FROM ORDERS WHERE ORDER_ID = ?;";
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+    {
+        sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
         return false;
+    }
 
     sqlite3_bind_int64(stmt, 1, orderId);
     bool success = (sqlite3_step(stmt) == SQLITE_DONE);
     sqlite3_finalize(stmt);
-    return success && sqlite3_changes(db) > 0;
+
+    if (!success)
+    {
+        sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
+        return false;
+    }
+
+    sqlite3_exec(db, "COMMIT;", nullptr, nullptr, nullptr);
+    return sqlite3_changes(db) > 0;
 }

@@ -5,7 +5,7 @@ using namespace std;
 
 // constructor
 Restaurant::Restaurant() : id(-1), name(""), address(""),
-                           isActive(false), number(""), description("") {}
+                           isActive(true), number(""), description("") {}
 
 Restaurant::Restaurant(long i, const string &nam, const string &a, bool ac, const string &num, const string &desc)
     : id(i), name(nam), address(a), isActive(ac), number(num), description(desc) {}
@@ -96,9 +96,11 @@ void Restaurant::PrintMenu(bool onlyAvailable) const
 
     if (menu.empty())
     {
-        cout << "(empty)\n";
+        cout << "(No items in menu)\n";
         return;
     }
+
+    bool printed = false;
 
     for (const auto &item : menu)
     {
@@ -109,5 +111,9 @@ void Restaurant::PrintMenu(bool onlyAvailable) const
             continue;
 
         item->Print();
+        printed = true;
     }
+
+    if (!printed)
+        cout << "(No available items currently)\n";
 }

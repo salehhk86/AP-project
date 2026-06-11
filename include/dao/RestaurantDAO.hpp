@@ -21,6 +21,7 @@ public:
 
     // read
     std::unique_ptr<Restaurant> ReadById(long long); // unique_ptr for handling ownership and preventing unwanted copying
+    std::vector<std::unique_ptr<Restaurant>> ReadAllActive();
     std::vector<std::unique_ptr<Restaurant>> ReadAll();
 
     // update

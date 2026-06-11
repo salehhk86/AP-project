@@ -5,7 +5,7 @@
 
 class Cart
 {
-public:
+private:
     struct CartLine
     {
         long itemId;
@@ -13,7 +13,6 @@ public:
         double unitPrice;
     };
 
-private:
     long customerId;
     long restaurantId;
     std::vector<CartLine> items;
@@ -31,6 +30,7 @@ public:
     long GetCustomerId() const;
     long GetRestaurantId() const;
     double GetTotalPrice() const;
+    int GetItemCount() const;
     bool IsEmpty() const;
 
     // items operation

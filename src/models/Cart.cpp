@@ -27,12 +27,14 @@ double Cart::GetTotalPrice() const
     return total;
 }
 
+int Cart::GetItemCount() const { return items.size(); }
+
 bool Cart::IsEmpty() const { return items.empty(); }
 
 void Cart::AddItem(long id, int quant, double price)
 {
     if (quant <= 0 || price < 0)
-        return;
+        throw invalid_argument("Invalid quantity or price.");
 
     for (auto &a : items)
     {
@@ -78,6 +80,7 @@ void Cart::ChangeItemQuantity(long id, int quant)
             return;
         }
     }
+    throw runtime_error("Item not found in cart.");
 }
 
 const vector<Cart::CartLine> &Cart::GetItems() const { return items; }
@@ -120,6 +123,7 @@ void Cart::PrintDetails() const
              << setw(10) << item.unitPrice << "\n";
     }
 
-    cout << "Total Price: $" << GetTotalPrice()
-         << "\n------------------------------------------\n";
+    cout << "\n--------------------------"
+     << "\nTotal Price: " << GetTotalPrice() << " Toman\n"
+     << "==========================\n";
 }

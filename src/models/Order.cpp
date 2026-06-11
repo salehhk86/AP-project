@@ -16,7 +16,12 @@ Order::Order(long o, long c, long r, OrderStatus s, const string &ca)
 void Order::SetOrderId(long o) { orderId = o; }
 void Order::SetCustomerId(long c) { customerId = c; }
 void Order::SetRestaurantId(long r) { restaurantId = r; }
-void Order::SetStatus(OrderStatus s) { status = s; }
+void Order::SetStatus(OrderStatus s)
+{
+    if (status == OrderStatus::Delivered || status == OrderStatus::Cancelled)
+        throw runtime_error("Cannot change status of a finalized order.");
+    status = s;
+}
 void Order::SetCreatedAt(const string &ca) { createdAt = ca; }
 
 // getter
@@ -41,6 +46,9 @@ const vector<Order::OrderLine> &Order::GetLines() const { return lines; }
 
 void Order::AddLine(long id, int quant, double price)
 {
+    if (status == OrderStatus::Delivered || status == OrderStatus::Cancelled)
+        throw runtime_error("Cannot modify a finalized order.");
+  
     if (quant <= 0)
         throw invalid_argument("Quantity must be greater than zero");
 
@@ -75,7 +83,7 @@ bool Order::RemoveLine(long id)
 void Order::ChangeLineQuantity(long id, int newQuant)
 {
     if (newQuant < 0)
-        return;
+        throw invalid_argument("Quantity cannot be negative.");
 
     for (auto l = lines.begin(); l != lines.end(); l++)
     {
@@ -92,6 +100,7 @@ void Order::ChangeLineQuantity(long id, int newQuant)
             return;
         }
     }
+    throw runtime_error("Item not found in order.");
 }
 
 void Order::ClearLines() { lines.clear(); }
@@ -140,5 +149,7 @@ void Order::PrintDetails() const
              << " | Line Total: " << (it.quantity * it.unitPrice);
     }
 
-    cout << "\nTotal Price: " << GetTotalPrice() << endl;
+    cout << "\n--------------------------"
+     << "\nTotal Price: " << GetTotalPrice() << " Toman\n"
+     << "==========================\n";
 }

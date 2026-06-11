@@ -29,11 +29,13 @@ ItemType Food::GetType() const { return ItemType::Food; }
 
 void Food::Print() const
 {
-    cout << "[Food] " << GetName() << " | ID: " << GetId() << "\n"
+    cout << "=== Food ===" << GetName() 
+         << " | ID: " << GetId() << "\n"
          << "Desc: " << GetDescription() << "\n"
          << "Calories: " << GetCalories()
          << " | Vegan: " << (GetIsVegan() ? "Yes" : "No") << "\n"
          << "Preparation time: " << GetPreparationTimeMinutes() << " min\n"
+         << "Status: " << (GetStatus() ? "Available" : "Unavailable") << "\n"
          << "Price: " << fixed << setprecision(2) << GetPrice()
          << " | Final: " << FinalPrice() << "\n"
          << "--------------------------\n";

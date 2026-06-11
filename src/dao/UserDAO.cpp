@@ -1,5 +1,5 @@
 #include "UserDAO.hpp"
-
+#include <iostream>
 using namespace std;
 
 // helper
@@ -23,8 +23,7 @@ unique_ptr<User> UserDAO::CreateUserFromRow(sqlite3_stmt *stmt)
         user = make_unique<Admin>(id, username, password, phone, address, created);
     else if (role == Role::RestaurantManager)
     {
-        auto rm = make_unique<RestaurantManager>(id, username, password, phone, address, created);
-        rm->SetRestaurantId(restaurantId);
+        auto rm = make_unique<RestaurantManager>(id, username, password, phone, address, created, restaurantId);
         user = move(rm);
     }
 
@@ -56,7 +55,12 @@ void UserDAO::CreateTable()
                       "CREATED_AT TEXT, "
                       "RESTAURANT_ID INTEGER);";
 
-    sqlite3_exec(db, sql, nullptr, nullptr, nullptr);
+    char *errMsg = nullptr;
+    if (sqlite3_exec(db, sql, nullptr, nullptr, &errMsg) != SQLITE_OK)
+    {
+        cerr << "CreateTable USER failed: " << errMsg << "\n";
+        sqlite3_free(errMsg);
+    }
 }
 
 bool UserDAO::Create(const User &user)
@@ -119,6 +123,26 @@ unique_ptr<User> UserDAO::ReadByUsername(const string &username)
     const char *sql =
         "SELECT ID, USERNAME, PASSWORD, PHONE_NUMBER, ADDRESS, ROLE, IS_ACTIVE, CREATED_AT, RESTAURANT_ID "
         "FROM USER WHERE USERNAME = ?;";
+
+    sqlite3_stmt *stmt;
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+        return nullptr;
+
+    sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_TRANSIENT);
+
+    unique_ptr<User> user = nullptr;
+    if (sqlite3_step(stmt) == SQLITE_ROW)
+        user = CreateUserFromRow(stmt);
+
+    sqlite3_finalize(stmt);
+    return user;
+}
+
+unique_ptr<User> UserDAO::ReadByUsernameForLogin(const string &username)
+{
+    const char *sql =
+        "SELECT ID, USERNAME, PASSWORD, PHONE_NUMBER, ADDRESS, ROLE, IS_ACTIVE, CREATED_AT, RESTAURANT_ID "
+        "FROM USER WHERE USERNAME = ? AND IS_ACTIVE = 1;";
 
     sqlite3_stmt *stmt;
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
@@ -199,5 +223,5 @@ bool UserDAO::Delete(long id)
 
     bool success = (sqlite3_step(stmt) == SQLITE_DONE);
     sqlite3_finalize(stmt);
-    return success;
+    return success && sqlite3_changes(db) > 0;
 }

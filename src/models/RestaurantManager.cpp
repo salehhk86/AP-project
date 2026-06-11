@@ -72,17 +72,37 @@ void RestaurantManager::UpdateMenuItemAvailability(Restaurant &restaurant, long 
     item->SetStatus(available);
 }
 
+void RestaurantManager::UpdateRestaurantName(Restaurant &restaurant, const string &name)
+{
+    EnsureOwnership(restaurant);
+    restaurant.SetName(name);
+}
+void RestaurantManager::UpdateRestaurantAddress(Restaurant &restaurant, const string &address)
+{
+    EnsureOwnership(restaurant);
+    restaurant.SetAddress(address);
+}
+void RestaurantManager::UpdateRestaurantDescription(Restaurant &restaurant, const string &desc)
+{
+    EnsureOwnership(restaurant);
+    restaurant.SetDescription(desc);
+}
+
 // orders
 void RestaurantManager::UpdateOrderStatus(Order &order, OrderStatus newStatus)
 {
     if (order.GetRestaurantId() != restaurantId)
         throw runtime_error("Manager cannot update orders of another restaurant.");
+
+    if (newStatus == OrderStatus::Cancelled)
+        throw runtime_error("Only customer can cancel an order.");
+
     order.SetStatus(newStatus);
 }
 
 void RestaurantManager::Print_Details() const
 {
-    cout << "RestaurantManager\n";
+    cout << "\n===== RestaurantManager =====\n";
     User::Print_Details();
     cout << "Restaurant id: " << restaurantId << '\n';
 }

@@ -6,7 +6,7 @@ using namespace std;
 // constructor
 User::User()
     : id(-1), userName(""), password(""), phoneNumber(""), address(""),
-      role(Role::Customer), isActive(false), createdAt("") {} // default cons
+      role(Role::Customer), isActive(true), createdAt("") {} // default cons
 
 User::User(long i, const string &u, const string &p, const string &ph, const string &a, Role r, const string &c)
     : id(i), userName(u), password(p), phoneNumber(ph), address(a), role(r), isActive(true), createdAt(c) {}

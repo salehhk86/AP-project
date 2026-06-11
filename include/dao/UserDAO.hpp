@@ -29,6 +29,7 @@ public:
     // read
     std::unique_ptr<User> ReadById(long id);
     std::unique_ptr<User> ReadByUsername(const std::string &);
+    std::unique_ptr<User> ReadByUsernameForLogin(const std::string &);
     std::vector<std::unique_ptr<User>> ReadAll();
 
     // update

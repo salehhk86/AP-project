@@ -73,7 +73,10 @@ bool ItemDAO::CreateTable()
     char *err = nullptr;
     bool ok = sqlite3_exec(db, sql, nullptr, nullptr, &err) == SQLITE_OK;
     if (!ok)
+    {
+        cerr << "CreateTable error: " << err << "\n";
         sqlite3_free(err);
+    }
     return ok;
 }
 
@@ -122,8 +125,13 @@ bool ItemDAO::Create(const Item &item, long restaurantId)
 // read
 unique_ptr<Item> ItemDAO::ReadById(long id)
 {
-    // SELECT
-    const char *sql = "SELECT * FROM ITEM WHERE ID=?;";
+    //SELECT
+    const char *sql =
+        "SELECT ID, RESTAURANT_ID, NAME, DESCRIPTION, "
+        "PRICE, TAX, STATUS, TYPE, CALORIES, "
+        "IS_VEGAN, PREP_TIME, DRINK_SIZE "
+        "FROM ITEM WHERE ID=?;";
+
     sqlite3_stmt *stmt;
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
         return nullptr;
@@ -141,8 +149,13 @@ unique_ptr<Item> ItemDAO::ReadById(long id)
 vector<unique_ptr<Item>> ItemDAO::ReadByRestaurantId(long restaurantId)
 {
     vector<unique_ptr<Item>> items;
-    // SELECT
-    const char *sql = "SELECT * FROM ITEM WHERE RESTAURANT_ID=?;";
+    //SELECT
+    const char *sql =
+        "SELECT ID, RESTAURANT_ID, NAME, DESCRIPTION, "
+        "PRICE, TAX, STATUS, TYPE, CALORIES, "
+        "IS_VEGAN, PREP_TIME, DRINK_SIZE "
+        "FROM ITEM WHERE RESTAURANT_ID=?;";
+
     sqlite3_stmt *stmt;
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
         return items;

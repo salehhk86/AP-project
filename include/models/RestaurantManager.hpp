@@ -32,6 +32,9 @@ public:
     void UpdateMenuItemPrice(Restaurant &, long, double);
     void UpdateMenuItemDescription(Restaurant &, long, const std::string &);
     void UpdateMenuItemAvailability(Restaurant &, long, bool);
+    void UpdateRestaurantName(Restaurant &, const string &);
+    void UpdateRestaurantAddress(Restaurant &, const string &);
+    void UpdateRestaurantDescription(Restaurant &, const string &);
 
     // orders
     void UpdateOrderStatus(Order &, OrderStatus);

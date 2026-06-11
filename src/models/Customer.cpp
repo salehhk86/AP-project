@@ -5,7 +5,7 @@
 using namespace std;
 
 // constructor
-Customer::Customer() : User(), cart() { SetRole(Role::Customer); }
+Customer::Customer() : User(), cart(-1,-1) { SetRole(Role::Customer); }
 
 Customer::Customer(long id, const string &username, const string &pass, const string &phone, const string &address, const string &createdAt)
     : User(id, username, pass, phone, address, Role::Customer, createdAt), cart(id, -1) {}
@@ -16,7 +16,6 @@ const Cart &Customer::GetCart() const { return cart; }
 
 // access to history
 const vector<Order> &Customer::GetOrderHistory() const { return orderHistory; }
-void Customer::AddOrderToHistory(const Order &order) { orderHistory.push_back(order); }
 
 // cart operation
 void Customer::AddToCart(long id, int quant, double price) { cart.AddItem(id, quant, price); }

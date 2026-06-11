@@ -12,6 +12,12 @@ enum class Role
 
 class User
 {
+
+friend class UserDAO; 
+
+private: 
+    std::string GetPassword() const; // only for data base
+
 protected:
     long id;
     std::string userName;
@@ -27,7 +33,7 @@ public:
     User(); // default cons
     User(long, const std::string &, const std::string &, const std::string &, const std::string &, Role, const std::string &);
 
-    // distructor
+    // destructor
     virtual ~User() = default;
 
     // Setter
@@ -43,7 +49,6 @@ public:
     // Getter
     long GetId() const;
     std::string GetUserName() const;
-    std::string GetPassword() const; // only for data base
     std::string GetPhone_Number() const;
     std::string GetAddress() const;
     Role GetRole() const;

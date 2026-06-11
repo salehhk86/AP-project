@@ -1,4 +1,5 @@
 #include "RestaurantDAO.hpp"
+#include <iostream>
 
 using namespace std;
 
@@ -15,7 +16,12 @@ void RestaurantDAO::CreateTable()
                       "PHONE_NUMBER TEXT, "
                       "DESCRIPTION TEXT);";
 
-    sqlite3_exec(db, sql, nullptr, nullptr, nullptr);
+    char *errMsg = nullptr;
+    if (sqlite3_exec(db, sql, nullptr, nullptr, &errMsg) != SQLITE_OK)
+    {
+        cerr << "CreateTable RESTAURANT failed: " << errMsg << "\n";
+        sqlite3_free(errMsg);
+    }
 }
 
 bool RestaurantDAO::Create(const Restaurant &restaurant)
@@ -72,6 +78,34 @@ unique_ptr<Restaurant> RestaurantDAO::ReadById(long long id)
 
     sqlite3_finalize(stmt);
     return restaurant;
+}
+
+vector<unique_ptr<Restaurant>> RestaurantDAO::ReadAllActive()
+{
+    vector<unique_ptr<Restaurant>> list;
+    const char *sql = "SELECT ID, NAME, ADDRESS, IS_ACTIVE, PHONE_NUMBER, DESCRIPTION "
+                      "FROM RESTAURANT WHERE IS_ACTIVE = 1;";
+    sqlite3_stmt *stmt;
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+        return list;
+
+    while (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+        const char *name = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
+        const char *address = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
+        const char *phone = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 4));
+        const char *desc = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 5));
+
+        list.push_back(make_unique<Restaurant>(
+            sqlite3_column_int64(stmt, 0),
+            name ? name : "",
+            address ? address : "",
+            sqlite3_column_int(stmt, 3) != 0,
+            phone ? phone : "",
+            desc ? desc : ""));
+    }
+    sqlite3_finalize(stmt);
+    return list;
 }
 
 vector<unique_ptr<Restaurant>> RestaurantDAO::ReadAll()

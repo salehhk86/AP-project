@@ -25,7 +25,6 @@ public:
 
     // access to history
     const std::vector<Order> &GetOrderHistory() const;
-    void AddOrderToHistory(const Order &);
 
     // cart operation
     void AddToCart(long, int, double);
