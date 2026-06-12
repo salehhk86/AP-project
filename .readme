@@ -2,50 +2,150 @@
 
 A C++ object-oriented university project for Ferdowsi University, inspired by online restaurant service platforms such as SnappFood.
 
+***
+
 ## Overview
+
 This project is developed as part of the **AP-SPRING** course at **Ferdowsi University** under the supervision of **Professor Javad Sobouti**.
 
-The main idea of the project is to design and implement a **restaurant service system** similar to **SnappFood** using **C++** and **Object-Oriented Programming (OOP)** principles.
+The main idea is to design and implement a **restaurant service system** similar to SnappFood using **C++** and **Object-Oriented Programming (OOP)** principles.
+
+***
 
 ## Project Goals
-The goals of this project are:
-- practicing Object-Oriented Programming in C++
-- designing a clean and understandable software architecture
-- applying concepts such as:
+
+- Practice Object-Oriented Programming in C++
+- Design a clean and understandable software architecture
+- Apply core OOP concepts:
   - Encapsulation
   - Inheritance
   - Polymorphism
   - Abstraction
   - Modularity
-- learning version control with Git and GitHub
-- preparing the project for database integration
+- Learn version control with Git and GitHub
+- Integrate a persistent database (SQLite)
+
+***
 
 ## Technologies and Tools
-- **Language:** C++
-- **Paradigm:** Object-Oriented Programming (OOP)
-- **Editor:** Visual Studio Code
-- **Compiler:** GCC / g++
-- **Version Control:** Git
-- **Repository Platform:** GitHub
-- **Database:** Included in the project
+
+| Tool / Technology    | Details                    |
+|----------------------|----------------------------|
+| Language             | C++ (C++17)                |
+| Paradigm             | Object-Oriented Programming |
+| Editor               | Visual Studio Code         |
+| Compiler             | GCC / g++                  |
+| Version Control      | Git                        |
+| Repository Platform  | GitHub                     |
+| Database             | SQLite (via sqlite3)       |
+
+***
 
 ## Project Concept
+
 This project simulates an online food and restaurant service platform.  
 It is designed to manage users, restaurants, menus, and ordering operations in an object-oriented way.
 
-Planned or possible parts of the system include:
-- user accounts
-- customer, manager, and admin roles
-- menu and food management
-- order processing
-- database support
-- service and business logic handling
+### Key Features
 
-## Development Process
-The project is being developed incrementally and managed through **Git** and **GitHub**.  
-Every major step of the implementation is saved using commits and push operations.
+- **User Roles:**
+  - `Admin` — manages restaurants and users, assigns managers
+  - `RestaurantManager` — manages the menu and items of their assigned restaurant
+  - `Customer` — browses restaurants, views menus, and places orders
+
+- **Item System:**
+  - Base class `Item` with price validation, tax calculation, and `FinalPrice()` support
+  - Derived class `Food` with calories, vegan flag, and preparation time
+  - `ItemType` enum for polymorphic type identification
+
+- **Restaurant Management:**
+  - Full CRUD operations via `RestaurantDAO` using SQLite
+  - Active/inactive status filtering
+  - Manager-to-restaurant assignment system
+
+- **Database Layer:**
+  - DAO (Data Access Object) pattern for `Restaurant`, `User`, and `Item` entities
+  - Persistent storage using SQLite embedded database (`food_app.db`)
+  - Parameterized queries to prevent SQL injection
+
+***
+
+## Architecture
+
+```
+├── include/
+│   ├── Item.hpp
+│   ├── Food.hpp
+│   ├── User.hpp
+│   ├── Admin.hpp
+│   ├── RestaurantManager.hpp
+│   ├── Customer.hpp
+│   ├── Restaurant.hpp
+│   ├── RestaurantDAO.hpp
+│   ├── UserDAO.hpp
+│   ├── AppSystem.hpp
+│   └── Menus.hpp
+├── src/
+│   ├── Item.cpp
+│   ├── Food.cpp
+│   ├── RestaurantDAO.cpp
+│   ├── Menus.cpp
+│   └── ...
+├── main.cpp
+├── food_app.db          ← auto-generated on first run
+└── README.md
+```
+
+***
 
 ## Build & Run
-To compile the project using g++, run:
+
+### Prerequisites
+
+- GCC / g++ with C++17 support
+- SQLite3 library installed
+
+**Linux / macOS:**
 ```bash
-g++ -std=c++17 -Iinclude src/*.cpp -o app
+g++ -std=c++17 -Iinclude src/*.cpp main.cpp -lsqlite3 -o app
+./app
+```
+
+**Windows (MinGW):**
+```bash
+g++ -std=c++17 -Iinclude src/*.cpp main.cpp -lsqlite3 -o app.exe
+app.exe
+```
+
+> If SQLite is bundled as `src3.c`, compile it alongside your source files.
+
+***
+
+## Default Login
+
+| Username | Password   | Role  |
+|----------|------------|-------|
+| admin    | admin123   | Admin |
+
+***
+
+## Usage Flow
+
+1. **Admin** logs in → registers a restaurant → assigns a `RestaurantManager`
+2. **RestaurantManager** logs in → adds food items to the menu
+3. **Customer** registers → browses active restaurants → views menu and places orders
+
+***
+
+## Development Process
+
+The project is developed incrementally and managed through **Git** and **GitHub**.  
+Every major step of the implementation is tracked using commits and push operations, following a clean development history.
+
+***
+
+## Notes
+
+- Delete `food_app.db` to reset all data and start fresh
+- The default admin account is seeded automatically on first run
+- SQLite is used as an embedded database — no external server required
