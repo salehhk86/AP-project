@@ -26,9 +26,22 @@ int main()
         itemDAO.CreateTable();
         orderDAO.CreateTables();
 
-        AppSystem app(userDAO, restaurantDAO, itemDAO, orderDAO);
+        // seed default admin
+        auto existing = userDAO.ReadByUsername("admin");
+        if (!existing)
+        {
+            time_t now = time(nullptr);
+            string createdAt = string(ctime(&now));
+            createdAt.pop_back();
 
-        //main loop
+            Admin defaultAdmin(0, "saleh", "Admin2580", "09399098787", "System", createdAt);
+            defaultAdmin.SetIs_Active(true);
+
+            if (userDAO.Create(defaultAdmin))
+                cout << "[INFO] Default admin created -> username: saleh | password: Admin2580\n";
+        }
+
+        AppSystem app(userDAO, restaurantDAO, itemDAO, orderDAO);
         Menus menus(app);
         menus.MainMenu();
     }
@@ -37,6 +50,5 @@ int main()
         cerr << "Fatal error: " << e.what() << "\n";
         return 1;
     }
-
     return 0;
 }

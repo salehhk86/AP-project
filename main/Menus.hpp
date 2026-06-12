@@ -39,6 +39,8 @@ private:
     void RegisterRestaurant();
     void ToggleRestaurant();
     void ViewReports();
+    void AssignManager();
+    void ListAllUsers();
 
 public:
     explicit Menus(AppSystem &);

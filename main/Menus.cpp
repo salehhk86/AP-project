@@ -116,7 +116,30 @@ void Menus::RegisterMenu()
     string phone = GetStringInput("Phone: ");
     string address = GetStringInput("Address: ");
 
-    app.SignUp(username, password, phone, address, Role::Customer);
+    cout << "\nSelect role:\n";
+    cout << "1. Customer\n";
+    cout << "2. Restaurant Manager\n";
+    int roleChoice = GetIntInput("Enter choice: ");
+
+    Role role;
+    switch (roleChoice)
+    {
+    case 1:
+        role = Role::Customer;
+        break;
+    case 2:
+        role = Role::RestaurantManager;
+        break;
+    default:
+        cout << "Invalid role. Registering as Customer.\n";
+        role = Role::Customer;
+    }
+
+    if (app.SignUp(username, password, phone, address, role))
+        cout << "Registration successful!\n";
+    else
+        cout << "Registration failed. Username may already exist.\n";
+
     PauseScreen();
 }
 
@@ -611,6 +634,8 @@ void Menus::AdminMenu(Admin *admin)
         cout << "1. Register New Restaurant\n";
         cout << "2. Activate/Deactivate Restaurant\n";
         cout << "3. View Reports\n";
+        cout << "4. Assign Manager to Restaurant\n";
+        cout << "5. List All Users\n";
         cout << "0. Logout\n";
         cout << "======================\n";
 
@@ -625,6 +650,12 @@ void Menus::AdminMenu(Admin *admin)
             break;
         case 3:
             ViewReports();
+            break;
+        case 4:
+            AssignManager();
+            break;
+        case 5:
+            ListAllUsers();
             break;
         case 0:
             return;
@@ -645,10 +676,64 @@ void Menus::RegisterRestaurant()
     string desc = GetStringInput("Description: ");
 
     Restaurant r(0, name, addr, true, phone, desc);
-    if (app.GetRestaurantDAO().Create(r))
-        cout << "Restaurant registered successfully.\n";
-    else
+    if (!app.GetRestaurantDAO().Create(r))
+    {
         cout << "Failed to register restaurant.\n";
+        PauseScreen();
+        return;
+    }
+
+    // get the new restaurant's ID
+    auto allR = app.GetRestaurantDAO().ReadAll();
+    long newRestId = allR.back()->GetId();
+    cout << "Restaurant registered! ID: " << newRestId << "\n";
+
+    // assign a manager
+    cout << "\n--- Assign Manager ---\n";
+    auto allUsers = app.GetUserDAO().ReadAll();
+
+    // show only RestaurantManagers without a restaurant
+    bool found = false;
+    for (const auto &u : allUsers)
+    {
+        if (u->GetRole() == Role::RestaurantManager)
+        {
+            auto rm = dynamic_cast<RestaurantManager *>(u.get());
+            if (rm && rm->GetRestaurantId() == 0)
+            {
+                cout << "ID: " << rm->GetId()
+                     << " | " << rm->GetUserName() << "\n";
+                found = true;
+            }
+        }
+    }
+
+    if (!found)
+    {
+        cout << "(No unassigned managers found. Assign later.)\n";
+        PauseScreen();
+        return;
+    }
+
+    long managerId = GetIntInput("Enter Manager ID to assign (0 to skip): ");
+    if (managerId == 0)
+    {
+        PauseScreen();
+        return;
+    }
+
+    auto user = app.GetUserDAO().ReadById(managerId);
+    if (!user || user->GetRole() != Role::RestaurantManager)
+    {
+        cout << "Invalid manager ID.\n";
+        PauseScreen();
+        return;
+    }
+
+    auto rm = dynamic_cast<RestaurantManager *>(user.get());
+    rm->SetRestaurantId(newRestId);
+    app.GetUserDAO().Update(*rm);
+    cout << "Manager assigned successfully!\n";
     PauseScreen();
 }
 
@@ -712,5 +797,59 @@ void Menus::ViewReports()
     cout << "Total Orders       : " << tempAdmin.GetTotalOrdersCount(allOrders) << "\n";
     cout << "Total Sales        : " << tempAdmin.GetTotalSales(allOrders) << " Toman\n";
 
+    PauseScreen();
+}
+
+void Menus::AssignManager()
+{
+    ClearScreen();
+    cout << "===== Assign Manager =====\n";
+
+    // show restaurants
+    auto restaurants = app.GetRestaurantDAO().ReadAll();
+    for (const auto &r : restaurants)
+        cout << "ID: " << r->GetId() << " | " << r->GetName() << "\n";
+    long restId = GetIntInput("Restaurant ID: ");
+
+    // show managers
+    auto allUsers = app.GetUserDAO().ReadAll();
+    for (const auto &u : allUsers)
+        if (u->GetRole() == Role::RestaurantManager)
+            cout << "ID: " << u->GetId() << " | " << u->GetUserName() << "\n";
+    long managerId = GetIntInput("Manager ID: ");
+
+    auto user = app.GetUserDAO().ReadById(managerId);
+    if (!user || user->GetRole() != Role::RestaurantManager)
+    {
+        cout << "Invalid manager.\n";
+        PauseScreen();
+        return;
+    }
+
+    auto rm = dynamic_cast<RestaurantManager *>(user.get());
+    rm->SetRestaurantId(restId);
+    app.GetUserDAO().Update(*rm);
+    cout << "Done! Manager assigned to restaurant ID: " << restId << "\n";
+    PauseScreen();
+}
+
+void Menus::ListAllUsers()
+{
+    ClearScreen();
+    cout << "===== All Users =====\n";
+    auto allUsers = app.GetUserDAO().ReadAll();
+    for (const auto &u : allUsers)
+    {
+        cout << "ID: " << u->GetId()
+             << " | Username: " << u->GetUserName()
+             << " | Role: ";
+        switch (u->GetRole())
+        {
+        case Role::Admin:            cout << "Admin"; break;
+        case Role::RestaurantManager: cout << "Manager"; break;
+        case Role::Customer:         cout << "Customer"; break;
+        }
+        cout << "\n";
+    }
     PauseScreen();
 }
